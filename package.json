@@ -2,30 +2,37 @@
   "name": "phaser3-typescript-webpack",
   "version": "1.0.0",
   "description": "",
-  "author": "troyedwardsjr",
   "main": "index.js",
   "scripts": {
-    "start": "webpack",
-    "dev": "webpack",
-    "deploy": "webpack --config webpack.production.config.js"
+    "dev": "webpack --mode development && webpack-dev-server --mode development",
+    "build": "webpack --mode production && webpack-dev-server --mode production"
   },
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.0.0-rc.2",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-rc.2",
-    "@babel/polyfill": "^7.0.0-rc.2",
-    "@babel/preset-env": "^7.0.0-rc.2",
-    "@babel/preset-typescript": "^7.0.0-rc.2",
-    "awesome-typescript-loader": "^3.4.1",
-    "babel-loader": "8.0.0-beta.2",
-    "browser-sync": "^2.18.13",
-    "browser-sync-webpack-plugin": "^1.2.0",
-    "html-webpack-plugin": "^2.30.1",
-    "raw-loader": "^0.5.1",
-    "typescript": "^2.7.2",
-    "webpack": "3.11.0"
+    "@babel/core": "^7.3.3",
+    "@babel/plugin-proposal-class-properties": "^7.3.3",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-typescript": "^7.3.3",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.5",
+    "browser-sync": "^2.26.3",
+    "browser-sync-webpack-plugin": "^2.2.2",
+    "copy-webpack-plugin": "^4.6.0",
+    "expose-loader": "^0.7.5",
+    "html-webpack-plugin": "^3.2.0",
+    "prettier": "^1.16.4",
+    "prettier-tslint": "^0.4.2",
+    "raw-loader": "^1.0.0",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-loader": "^3.5.4",
+    "typescript": "^3.3.3",
+    "webpack": "^4.29.4",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
-    "phaser": "3.11.0"
+    "phaser": "^3.16.2"
   }
 }
