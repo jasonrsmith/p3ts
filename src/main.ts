@@ -10,6 +10,13 @@ const config: GameConfig = {
   resolution: 1,
   backgroundColor: "#EDEEC9",
   scene: [TestScene],
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 300 },
+      debug: false,
+    },
+  },
 };
 
 new Phaser.Game(config);

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development && webpack-dev-server --mode development",
-    "build": "webpack --mode production && webpack-dev-server --mode production"
+    "build": "webpack --mode production && webpack-dev-server --mode production",
+    "lint": "prettier-tslint fix 'src/**/*.ts'"
   },
   "license": "MIT",
   "devDependencies": {
@@ -14,6 +15,7 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.3.3",
+    "@types/jest": "^24.0.6",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
     "browser-sync": "^2.26.3",
@@ -21,9 +23,11 @@
     "copy-webpack-plugin": "^4.6.0",
     "expose-loader": "^0.7.5",
     "html-webpack-plugin": "^3.2.0",
+    "jest": "^24.1.0",
     "prettier": "^1.16.4",
     "prettier-tslint": "^0.4.2",
     "raw-loader": "^1.0.0",
+    "ts-jest": "^24.0.0",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
     "tslint-loader": "^3.5.4",
@@ -33,6 +37,7 @@
     "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
+    "es6-promise": "^4.2.6",
     "phaser": "^3.16.2"
   }
 }
