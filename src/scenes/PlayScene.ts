@@ -66,6 +66,9 @@ class TestScene extends Phaser.Scene {
   }
 
   public update(time: number, delta: number) {
+    if (this.gameOver) {
+      return;
+    }
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-160);
       this.player.anims.play("left", true);
@@ -151,7 +154,7 @@ class TestScene extends Phaser.Scene {
     const player = this.player;
     const time = this.time;
     const tweens = this.tweens;
-    const canvasHeight = this.sys.game.canvas.height
+    const canvasHeight = this.sys.game.canvas.height;
 
     const turnAnim = () =>
       new Promise((resolve) => {
@@ -169,15 +172,15 @@ class TestScene extends Phaser.Scene {
       });
 
     const playerUpTween = (ms) =>
-        new Promise((resolve) => {
-          tweens.add({
-            targets: player,
-            y: player.y - player.height,
-            duration: ms,
-            ease: "Quintic",
-            onComplete: resolve,
-          });
+      new Promise((resolve) => {
+        tweens.add({
+          targets: player,
+          y: player.y - player.height,
+          duration: ms,
+          ease: "Power4",
+          onComplete: resolve,
         });
+      });
 
     const playerFallTween = (ms) =>
       new Promise((resolve) => {
@@ -185,16 +188,24 @@ class TestScene extends Phaser.Scene {
           targets: player,
           y: canvasHeight + player.height,
           duration: ms,
-          ease: "Power1",
+          ease: (v) => {
+            let res = 0;
+            if (v === 0) {
+              return 0;
+            } else if (v === 1) {
+              return 1;
+            } else {
+              res = 0.9 - Math.cos((v * Math.PI) / 1.3 - 0.5);
+              return res;
+            }
+          },
+
           onComplete: resolve,
         });
       });
 
     await turnAnim();
-    await delayMs(100);
-    await playerUpTween(200);
-    await delayMs(100);
-    await playerFallTween(400);
+    await playerFallTween(800);
   }
 
   private dropBomb() {
