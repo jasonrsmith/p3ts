@@ -1,19 +1,21 @@
 import "phaser";
 
-import TestScene from "./scenes/PlayScene";
+import BootScene from "./scenes/BootScene";
+import WorldScene from "./scenes/WorldScene";
 
 const config: GameConfig = {
-  type: Phaser.AUTO,
   parent: "content",
-  width: 800,
-  height: 600,
-  resolution: 1,
-  backgroundColor: "#EDEEC9",
-  scene: [TestScene],
+  width: 320,
+  height: 240,
+  zoom: 2,
+  render: {
+    pixelArt: true,
+  },
+  scene: [BootScene, WorldScene],
   physics: {
     default: "arcade",
     arcade: {
-      gravity: { y: 300 },
+      gravity: { y: 0 },
       debug: false,
     },
   },
