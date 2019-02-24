@@ -1,64 +1,28 @@
-import Tilemap = Phaser.Tilemaps.Tilemap;
+import Sprite = Phaser.Physics.Arcade.Sprite;
+import { Mage } from "../enemies/Mage";
+import { Player } from "../Player";
 
-class WorldScene extends Phaser.Scene {
-  private player: Phaser.Physics.Arcade.Sprite;
+export class WorldScene extends Phaser.Scene {
+  private player: Player;
   private cursors: Phaser.Input.Keyboard.CursorKeys;
   private spawns: Phaser.Physics.Arcade.Group;
+  private obstacles: Phaser.Tilemaps.StaticTilemapLayer;
 
   constructor() {
     super({ key: "WorldScene" });
   }
 
-  public preload() {}
-
   public create() {
     const map = this.make.tilemap({ key: "map" });
     const tiles = map.addTilesetImage("spritesheet", "tiles");
     const grass = map.createStaticLayer("Grass", tiles, 0, 0);
-    const obstacles = map.createStaticLayer("Obstacles", tiles, 0, 0);
-    obstacles.setCollisionByExclusion([-1]);
-
-    this.player = this.physics.add.sprite(50, 100, "player", 6);
+    this.obstacles = map.createStaticLayer("Obstacles", tiles, 0, 0);
+    this.obstacles.setCollisionByExclusion([-1]);
+    this.createPlayer();
     this.physics.world.bounds.width = map.widthInPixels;
     this.physics.world.bounds.height = map.heightInPixels;
-    this.player.setCollideWorldBounds(true);
-    //  animation with key 'left', we don't need left and right as we will use one and flip the sprite
-    this.anims.create({
-      key: "left",
-      frames: this.anims.generateFrameNumbers("player", {
-        frames: [1, 7, 1, 13],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
 
-    // animation with key 'right'
-    this.anims.create({
-      key: "right",
-      frames: this.anims.generateFrameNumbers("player", {
-        frames: [1, 7, 1, 13],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "up",
-      frames: this.anims.generateFrameNumbers("player", {
-        frames: [2, 8, 2, 14],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "down",
-      frames: this.anims.generateFrameNumbers("player", {
-        frames: [0, 6, 0, 12],
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.physics.add.collider(this.player, obstacles);
+    this.physics.add.collider(this.player, this.obstacles);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -66,29 +30,29 @@ class WorldScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
     this.cameras.main.roundPixels = true;
 
-    // this.spawns = this.physics.add.group({ classType: Phaser.GameObjects.Zone });
-    // for(let i = 0; i < 30; i++) {
-    //   const x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
-    //   const y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
-    //   // parameters are x, y, width, height
-    //   this.spawns.create(x, y, 20, 20);
-    // }
-    // this.physics.add.overlap(this.player, this.spawns, this.onMeetEnemy, false, this);
+    this.createSpawns();
+    this.physics.add.collider(this.spawns, this.obstacles);
   }
 
   public update(time: number, delta: number) {
     this.player.setVelocity(0);
 
+    const speedFactor = 1.5;
+    this.updatePlayer(speedFactor);
+    this.updateSpawns(speedFactor);
+  }
+
+  private updatePlayer(speedFactor: number) {
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-80);
+      this.player.setVelocityX(-80 * speedFactor);
     } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(80);
+      this.player.setVelocityX(80 * speedFactor);
     }
 
     if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-80);
+      this.player.setVelocityY(-80 * speedFactor);
     } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(80);
+      this.player.setVelocityY(80 * speedFactor);
     }
 
     if (this.cursors.left.isDown) {
@@ -105,6 +69,43 @@ class WorldScene extends Phaser.Scene {
       this.player.anims.stop();
     }
   }
-}
 
-export default WorldScene;
+  private createPlayer() {
+    this.player = new Player(this, 50, 100);
+    console.log(this.player);
+    this.player.setCollideWorldBounds(true);
+  }
+
+  private createSpawns() {
+    Mage.createAnims(this);
+    this.spawns = this.physics.add.group({
+      runChildUpdate: true
+    });
+
+    for (let i = 0; i < 50; i++) {
+      const mage = new Mage(this, 0, 0);
+      this.spawns.add(mage);
+    }
+    Phaser.Actions.RandomRectangle(
+      this.spawns.getChildren(),
+      this.physics.world.bounds
+    );
+    this.physics.add.collider(this.spawns, this.obstacles);
+
+    this.physics.add.overlap(
+      this.player,
+      this.spawns,
+      this.onMeetEnemy,
+      null,
+      this
+    );
+  }
+
+  private onMeetEnemy(player, zone) {
+    this.cameras.main.shake(50);
+  }
+
+  private updateSpawns(speedFactor: number) {
+    this.spawns.getChildren().forEach((spawn: Sprite, index, array) => {});
+  }
+}

@@ -15,7 +15,7 @@ class TestScene extends Phaser.Scene {
 
   constructor() {
     super({
-      key: "TestScene",
+      key: "TestScene"
     });
   }
 
@@ -26,7 +26,7 @@ class TestScene extends Phaser.Scene {
     this.load.image("bomb", "assets/bomb.png");
     this.load.spritesheet("dude", "assets/dude.png", {
       frameHeight: 48,
-      frameWidth: 32,
+      frameWidth: 32
     });
   }
 
@@ -45,21 +45,21 @@ class TestScene extends Phaser.Scene {
       this.bombs,
       this.onHitBomb,
       null,
-      this,
+      this
     );
     this.physics.add.overlap(
       this.player,
       this.stars,
       this.onCollectStar,
       null,
-      this,
+      this
     );
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.score = 0;
     this.scoreText = this.add.text(16, 16, "score: 0", {
       fontSize: "32px",
-      fill: "#000",
+      fill: "#000"
     });
 
     this.dropBomb();
@@ -110,20 +110,20 @@ class TestScene extends Phaser.Scene {
       key: "left",
       frames: this.anims.generateFrameNumbers("dude", { start: 0, end: 3 }),
       frameRate: 10,
-      repeat: -1,
+      repeat: -1
     });
 
     this.anims.create({
       key: "turn",
       frames: [{ key: "dude", frame: 4 }],
-      frameRate: 20,
+      frameRate: 20
     });
 
     this.anims.create({
       key: "right",
       frames: this.anims.generateFrameNumbers("dude", { start: 5, end: 8 }),
       frameRate: 10,
-      repeat: -1,
+      repeat: -1
     });
   }
 
@@ -131,7 +131,7 @@ class TestScene extends Phaser.Scene {
     this.stars = this.physics.add.group({
       key: "star",
       repeat: 11,
-      setXY: { x: 12, y: 0, stepX: 70 },
+      setXY: { x: 12, y: 0, stepX: 70 }
     });
 
     this.stars.children.iterate((child: Sprite) => {
@@ -157,38 +157,38 @@ class TestScene extends Phaser.Scene {
     const canvasHeight = this.sys.game.canvas.height;
 
     const turnAnim = () =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         player.anims
           .play("turn")
           .once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, resolve);
       });
 
-    const delayMs = (ms) =>
-      new Promise((resolve) => {
+    const delayMs = ms =>
+      new Promise(resolve => {
         time.addEvent({
           delay: ms,
-          callback: resolve,
+          callback: resolve
         });
       });
 
-    const playerUpTween = (ms) =>
-      new Promise((resolve) => {
+    const playerUpTween = ms =>
+      new Promise(resolve => {
         tweens.add({
           targets: player,
           y: player.y - player.height,
           duration: ms,
           ease: "Power4",
-          onComplete: resolve,
+          onComplete: resolve
         });
       });
 
-    const playerFallTween = (ms) =>
-      new Promise((resolve) => {
+    const playerFallTween = ms =>
+      new Promise(resolve => {
         tweens.add({
           targets: player,
           y: canvasHeight + player.height,
           duration: ms,
-          ease: (v) => {
+          ease: v => {
             let res = 0;
             if (v === 0) {
               return 0;
@@ -200,7 +200,7 @@ class TestScene extends Phaser.Scene {
             }
           },
 
-          onComplete: resolve,
+          onComplete: resolve
         });
       });
 
@@ -226,7 +226,7 @@ class TestScene extends Phaser.Scene {
     this.time.addEvent({
       delay: Phaser.Math.Between(500, 5000),
       callback: this.dropBomb,
-      callbackScope: this,
+      callbackScope: this
     });
   }
 }

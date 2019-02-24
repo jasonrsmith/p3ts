@@ -1,20 +1,13 @@
-class BootScene extends Phaser.Scene {
+export class BootScene extends Phaser.Scene {
   constructor() {
     super({ key: "BootScene" });
   }
 
   public preload() {
-    this.load.image("tiles", "assets/map/spritesheet.png");
-    this.load.tilemapTiledJSON("map", "assets/map/map.json");
-    this.load.spritesheet("player", "assets/RPG_assets.png", {
-      frameWidth: 16,
-      frameHeight: 16,
-    });
+    this.load.pack("preload", "assets/pack.json", "preload");
   }
 
-  public create() {
+  public update() {
     this.scene.start("WorldScene");
   }
 }
-
-export default BootScene;

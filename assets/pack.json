@@ -1,0 +1,34 @@
+{
+  "preload": {
+    "files": [
+      {
+        "type": "image",
+        "key":  "tiles",
+        "url": "assets/map/spritesheet.png"
+      },
+      {
+        "type": "tilemapTiledJSON",
+        "key": "map",
+        "url": "assets/map/map.json"
+      },
+      {
+        "type": "spritesheet",
+        "key": "player",
+        "url": "assets/RPG_assets.png",
+        "frameConfig": {
+          "frameWidth": 16,
+          "frameHeight": 16
+        }
+      },
+      {
+        "type": "spritesheet",
+        "key": "mage",
+        "url": "assets/mage.png",
+        "frameConfig": {
+          "frameWidth": 16,
+          "frameHeight": 16
+        }
+      }
+    ]
+  }
+}

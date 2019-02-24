@@ -1,24 +1,27 @@
 import "phaser";
 
-import BootScene from "./scenes/BootScene";
-import WorldScene from "./scenes/WorldScene";
+import { BootScene } from "./scenes/BootScene";
+import { WorldScene } from "./scenes/WorldScene";
 
 const config: GameConfig = {
   parent: "content",
-  width: 320,
-  height: 240,
-  zoom: 2,
   render: {
-    pixelArt: true,
+    pixelArt: true
   },
   scene: [BootScene, WorldScene],
   physics: {
     default: "arcade",
     arcade: {
       gravity: { y: 0 },
-      debug: false,
-    },
+      debug: true
+    }
   },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    height: 240,
+    width: 420
+  }
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
