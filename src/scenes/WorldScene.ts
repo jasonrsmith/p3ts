@@ -18,7 +18,7 @@ export class WorldScene extends Phaser.Scene {
     const grass = map.createStaticLayer("Grass", tiles, 0, 0);
     this.obstacles = map.createStaticLayer("Obstacles", tiles, 0, 0);
     this.obstacles.setCollisionByExclusion([-1]);
-    this.createPlayer();
+    this.player = new Player(this, 50, 100);
     this.physics.world.bounds.width = map.widthInPixels;
     this.physics.world.bounds.height = map.heightInPixels;
 
@@ -35,45 +35,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   public update(time: number, delta: number) {
-    this.player.setVelocity(0);
-
-    const speedFactor = 1.5;
-    this.updatePlayer(speedFactor);
-    this.updateSpawns(speedFactor);
-  }
-
-  private updatePlayer(speedFactor: number) {
-    if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-80 * speedFactor);
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(80 * speedFactor);
-    }
-
-    if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-80 * speedFactor);
-    } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(80 * speedFactor);
-    }
-
-    if (this.cursors.left.isDown) {
-      this.player.anims.play("left", true);
-      this.player.flipX = true;
-    } else if (this.cursors.right.isDown) {
-      this.player.anims.play("right", true);
-      this.player.flipX = false;
-    } else if (this.cursors.up.isDown) {
-      this.player.anims.play("up", true);
-    } else if (this.cursors.down.isDown) {
-      this.player.anims.play("down", true);
-    } else {
-      this.player.anims.stop();
-    }
-  }
-
-  private createPlayer() {
-    this.player = new Player(this, 50, 100);
-    console.log(this.player);
-    this.player.setCollideWorldBounds(true);
+    this.player.update();
   }
 
   private createSpawns() {
@@ -103,9 +65,5 @@ export class WorldScene extends Phaser.Scene {
 
   private onMeetEnemy(player, zone) {
     this.cameras.main.shake(50);
-  }
-
-  private updateSpawns(speedFactor: number) {
-    this.spawns.getChildren().forEach((spawn: Sprite, index, array) => {});
   }
 }
