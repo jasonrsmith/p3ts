@@ -46,6 +46,7 @@ export class WorldScene extends Phaser.Scene {
       this.obstacles,
       null,
       (mage: Mage, tile: any) => {
+        // TODO find a better way
         if (tile.index != -1) {
           if (mage.body.x == 0) {
             return;
@@ -69,7 +70,9 @@ export class WorldScene extends Phaser.Scene {
     for (let i = 0; i < 50; i++) {
       const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
+      mage.initPhysics();
     }
+
     Phaser.Actions.RandomRectangle(
       this.spawns.getChildren(),
       this.physics.world.bounds
