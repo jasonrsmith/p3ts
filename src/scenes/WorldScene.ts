@@ -68,7 +68,7 @@ export class WorldScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
       mage.initPhysics();
@@ -109,6 +109,8 @@ export class WorldScene extends Phaser.Scene {
     const tileSize = 16;
 
     this.spawns.getChildren().forEach((mage: Mage) => {
+      // const mageTileX = Math.floor((mage.x + tileSize / 2) / tileSize);
+      // const mageTileY = Math.floor((mage.y + tileSize / 2) / tileSize);
       const mageTileX = Math.floor(mage.x / tileSize);
       const mageTileY = Math.floor(mage.y / tileSize);
       const path = finder.findPath(
