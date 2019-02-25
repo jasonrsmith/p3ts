@@ -29,7 +29,7 @@ export class Mage extends Phaser.Physics.Arcade.Sprite {
 
   public update(): void {
     this.anims.play("mage_left", true);
-    this.setVelocityX(this.speed);
+    //this.setVelocityX(this.speed);
     if (this.body.blocked.right || this.body.blocked.left) {
       this.speed = -this.speed;
       this.setVelocityX(this.speed);

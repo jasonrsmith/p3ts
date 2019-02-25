@@ -1,4 +1,6 @@
 import Scene = Phaser.Scene;
+import * as PF from "pathfinding";
+import Game = Phaser.Game;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private readonly currentScene: Phaser.Scene;
@@ -80,16 +82,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private handleInput() {
     this.setVelocity(0);
-    if (this.keys.get("LEFT").isDown) {
-      this.setVelocityX(-80 * this.speedFactor);
-    } else if (this.keys.get("RIGHT").isDown) {
-      this.setVelocityX(80 * this.speedFactor);
-    }
 
-    if (this.keys.get("UP").isDown) {
+    if (this.keys.get("LEFT").isDown && this.keys.get("UP").isDown) {
+      this.setVelocityX(-50 * this.speedFactor);
+      this.setVelocityY(-50 * this.speedFactor);
+    } else if (this.keys.get("RIGHT").isDown && this.keys.get("UP").isDown) {
+      this.setVelocityX(50 * this.speedFactor);
+      this.setVelocityY(-50 * this.speedFactor);
+    } else if (this.keys.get("LEFT").isDown && this.keys.get("DOWN").isDown) {
+      this.setVelocityX(-50 * this.speedFactor);
+      this.setVelocityY(50 * this.speedFactor);
+    } else if (this.keys.get("RIGHT").isDown && this.keys.get("DOWN").isDown) {
+      this.setVelocityX(50 * this.speedFactor);
+      this.setVelocityY(50 * this.speedFactor);
+    } else if (this.keys.get("UP").isDown) {
       this.setVelocityY(-80 * this.speedFactor);
     } else if (this.keys.get("DOWN").isDown) {
       this.setVelocityY(80 * this.speedFactor);
+    } else if (this.keys.get("LEFT").isDown) {
+      this.setVelocityX(-80 * this.speedFactor);
+    } else if (this.keys.get("RIGHT").isDown) {
+      this.setVelocityX(80 * this.speedFactor);
     }
 
     if (this.keys.get("LEFT").isDown) {
@@ -104,6 +117,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.anims.play("player_down", true);
     } else {
       this.anims.stop();
+      this.setFrame(1);
     }
   }
 }

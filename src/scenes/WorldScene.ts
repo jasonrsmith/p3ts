@@ -1,7 +1,7 @@
 import Sprite = Phaser.Physics.Arcade.Sprite;
 import { Mage } from "../enemies/Mage";
 import { Player } from "../Player";
-import Tile = Phaser.Tilemaps.Tile;
+import * as PF from "pathfinding";
 
 export class WorldScene extends Phaser.Scene {
   private player: Player;
@@ -37,6 +37,7 @@ export class WorldScene extends Phaser.Scene {
   public update(time: number, delta: number) {
     this.player.update();
     this.overlapResolveForSpawns();
+    this.updateMagePaths();
   }
 
   private overlapResolveForSpawns() {
@@ -67,7 +68,7 @@ export class WorldScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 10; i++) {
       const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
       mage.initPhysics();
@@ -91,5 +92,57 @@ export class WorldScene extends Phaser.Scene {
 
   private onMeetEnemy(player, zone) {
     this.cameras.main.shake(50);
+  }
+
+  private updateMagePaths() {
+    let matrix = [];
+    for (let y = 0; y < this.obstacles.tilemap.height; y++) {
+      let col = [];
+      for (let x = 0; x < this.obstacles.tilemap.width; x++) {
+        col.push(this.obstacles.getTileAt(x, y) ? 1 : 0);
+      }
+      matrix.push(col);
+    }
+
+    const grid = new PF.Grid(matrix);
+    const finder = new PF.AStarFinder();
+    const tileSize = 16;
+
+    this.spawns.getChildren().forEach((mage: Mage) => {
+      const mageTileX = Math.floor(mage.x / tileSize);
+      const mageTileY = Math.floor(mage.y / tileSize);
+      const path = finder.findPath(
+        mageTileX,
+        mageTileY,
+        Math.floor(this.player.x / tileSize),
+        Math.floor(this.player.y / tileSize),
+        grid
+      );
+
+      // console.log(
+      //   Math.floor(mage.x / tileSize),
+      //   Math.floor(mage.y / tileSize),
+      //   Math.floor(this.player.x / tileSize),
+      //   Math.floor(this.player.y / tileSize)
+      // );
+      // console.log(nextStep);
+
+      const nextStep = path[1];
+      if (!nextStep) {
+        return;
+      }
+      if (mageTileX < nextStep[0]) {
+        mage.setVelocityX(30);
+      }
+      if (mageTileX > nextStep[0]) {
+        mage.setVelocityX(-30);
+      }
+      if (mageTileY < nextStep[1]) {
+        mage.setVelocityY(30);
+      }
+      if (mageTileY > nextStep[1]) {
+        mage.setVelocityY(-30);
+      }
+    });
   }
 }
