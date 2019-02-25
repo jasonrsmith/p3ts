@@ -1,6 +1,7 @@
 import Sprite = Phaser.Physics.Arcade.Sprite;
 import { Mage } from "../enemies/Mage";
 import { Player } from "../Player";
+import Tile = Phaser.Tilemaps.Tile;
 
 export class WorldScene extends Phaser.Scene {
   private player: Player;
@@ -18,7 +19,7 @@ export class WorldScene extends Phaser.Scene {
     const grass = map.createStaticLayer("Grass", tiles, 0, 0);
     this.obstacles = map.createStaticLayer("Obstacles", tiles, 0, 0);
     this.obstacles.setCollisionByExclusion([-1]);
-    this.player = new Player(this, 50, 100);
+    this.player = new Player(this, 1, 1);
     this.physics.world.bounds.width = map.widthInPixels;
     this.physics.world.bounds.height = map.heightInPixels;
 
@@ -31,11 +32,32 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.roundPixels = true;
 
     this.createSpawns();
-    this.physics.add.collider(this.spawns, this.obstacles);
   }
 
   public update(time: number, delta: number) {
     this.player.update();
+    this.overlapResolveForSpawns();
+  }
+
+  private overlapResolveForSpawns() {
+    const worldBounds = this.physics.world.bounds;
+    this.physics.collide(
+      this.spawns,
+      this.obstacles,
+      null,
+      (mage: Mage, tile: any) => {
+        if (tile.index != -1) {
+          if (mage.body.x == 0) {
+            return;
+          }
+          const x = Phaser.Math.RND.between(0, worldBounds.width);
+          const y = Phaser.Math.RND.between(0, worldBounds.height);
+          mage.setX(x);
+          mage.setY(y);
+          return true;
+        }
+      }
+    );
   }
 
   private createSpawns() {
@@ -45,13 +67,14 @@ export class WorldScene extends Phaser.Scene {
     });
 
     for (let i = 0; i < 50; i++) {
-      const mage = new Mage(this, 0, 0);
+      const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
     }
     Phaser.Actions.RandomRectangle(
       this.spawns.getChildren(),
       this.physics.world.bounds
     );
+
     this.physics.add.collider(this.spawns, this.obstacles);
 
     this.physics.add.overlap(
