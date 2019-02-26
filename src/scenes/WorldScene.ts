@@ -2,6 +2,7 @@ import Sprite = Phaser.Physics.Arcade.Sprite;
 import { Mage } from "../enemies/Mage";
 import { Player } from "../Player";
 import * as PF from "pathfinding";
+import GameObject = Phaser.GameObjects.GameObject;
 
 export class WorldScene extends Phaser.Scene {
   private player: Player;
@@ -68,10 +69,11 @@ export class WorldScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 10; i++) {
       const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
       mage.initPhysics();
+      mage.setName("mage_" + i);
     }
 
     Phaser.Actions.RandomRectangle(
@@ -91,7 +93,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private onMeetEnemy(player, zone) {
-    this.cameras.main.shake(50);
+    // this.cameras.main.shake(50);
   }
 
   private updateMagePaths() {
@@ -104,39 +106,53 @@ export class WorldScene extends Phaser.Scene {
       matrix.push(col);
     }
 
-    const grid = new PF.Grid(matrix);
-    const finder = new PF.AStarFinder();
     const tileSize = 16;
 
-    this.spawns.getChildren().forEach((mage: Mage) => {
-      // const mageTileX = Math.floor((mage.x + tileSize / 2) / tileSize);
-      // const mageTileY = Math.floor((mage.y + tileSize / 2) / tileSize);
-      const mageTileX = Math.floor(mage.x / tileSize);
-      const mageTileY = Math.floor(mage.y / tileSize);
-      const path = finder.findPath(
-        mageTileX,
-        mageTileY,
-        Math.floor(this.player.x / tileSize),
-        Math.floor(this.player.y / tileSize),
-        grid
-      );
+    const mages = <Mage[]>this.spawns.getChildren();
+    for (let i = 0; i < mages.length; i++) {
+      const mage = mages[i];
+      const grid = new PF.Grid(matrix);
+      const finder = new PF.AStarFinder({
+        allowDiagonal: true
+      });
 
+      const mageTileX = Math.floor((mage.x + tileSize / 2) / tileSize);
+      const mageTileY = Math.floor((mage.y + tileSize / 2) / tileSize);
+      // const mageTileX = Math.floor(mage.x / tileSize);
+      // const mageTileY = Math.floor(mage.y / tileSize);
+      let path;
+      try {
+        path = finder.findPath(
+          mageTileX,
+          mageTileY,
+          Math.floor(this.player.x / tileSize),
+          Math.floor(this.player.y / tileSize),
+          grid
+        );
+      } catch (e) {
+        console.log(e);
+        continue;
+      }
+
+      const nextStep = path[1];
+      // console.log(mage.name);
       // console.log(
       //   Math.floor(mage.x / tileSize),
       //   Math.floor(mage.y / tileSize),
       //   Math.floor(this.player.x / tileSize),
       //   Math.floor(this.player.y / tileSize)
       // );
+      //
       // console.log(nextStep);
-
-      const nextStep = path[1];
       if (!nextStep) {
-        return;
+        continue;
       }
       if (mageTileX < nextStep[0]) {
+        mage.flipX = false;
         mage.setVelocityX(30);
       }
       if (mageTileX > nextStep[0]) {
+        mage.flipX = true;
         mage.setVelocityX(-30);
       }
       if (mageTileY < nextStep[1]) {
@@ -145,6 +161,6 @@ export class WorldScene extends Phaser.Scene {
       if (mageTileY > nextStep[1]) {
         mage.setVelocityY(-30);
       }
-    });
+    }
   }
 }
