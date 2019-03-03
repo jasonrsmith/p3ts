@@ -9,6 +9,7 @@ export class WorldScene extends Phaser.Scene {
   private cursors: Phaser.Input.Keyboard.CursorKeys;
   private spawns: Phaser.Physics.Arcade.Group;
   private obstacles: Phaser.Tilemaps.StaticTilemapLayer;
+  private debugGraphics: Phaser.GameObjects.Graphics;
 
   constructor() {
     super({ key: "WorldScene" });
@@ -33,6 +34,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.roundPixels = true;
 
     this.createSpawns();
+    this.debugGraphics = this.add.graphics();
   }
 
   public update(time: number, delta: number) {
@@ -69,7 +71,7 @@ export class WorldScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       const mage = new Mage(this, 48, 48);
       this.spawns.add(mage);
       mage.initPhysics();
@@ -97,6 +99,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateMagePaths() {
+    const mageRunSpeed = 10;
     let matrix = [];
     for (let y = 0; y < this.obstacles.tilemap.height; y++) {
       let col = [];
@@ -116,50 +119,67 @@ export class WorldScene extends Phaser.Scene {
         allowDiagonal: true
       });
 
+      // const mageTileX = Math.round(mage.x / tileSize);
+      // const mageTileY = Math.round(mage.y / tileSize);
+      // const playerTileX = Math.round(this.player.x / tileSize);
+      // const playerTileY = Math.round(this.player.y / tileSize);
       const mageTileX = Math.floor((mage.x + tileSize / 2) / tileSize);
       const mageTileY = Math.floor((mage.y + tileSize / 2) / tileSize);
-      // const mageTileX = Math.floor(mage.x / tileSize);
-      // const mageTileY = Math.floor(mage.y / tileSize);
+      const playerTileX = Math.floor((this.player.x + tileSize / 2) / tileSize);
+      const playerTileY = Math.floor((this.player.y + tileSize / 2) / tileSize);
+
       let path;
       try {
         path = finder.findPath(
           mageTileX,
           mageTileY,
-          Math.floor(this.player.x / tileSize),
-          Math.floor(this.player.y / tileSize),
+          playerTileX,
+          playerTileY,
           grid
         );
       } catch (e) {
         console.log(e);
+        debugger;
         continue;
       }
 
+      this.debugGraphics.clear();
+      const x0 = mageTileX * tileSize + tileSize / 2;
+      const y0 = mageTileY * tileSize + tileSize / 2;
+      const x1 = playerTileX * tileSize + tileSize / 2;
+      const y1 = playerTileY * tileSize + tileSize / 2;
+      const line = new Phaser.Geom.Line(x0, y0, x1, y1);
+      this.debugGraphics.lineStyle(1, 0xff00ff, 0.8);
+      this.debugGraphics.strokeLineShape(line);
+      for (let i = 0; i < path.length - 1; i++) {
+        const x0 = path[i][0] * tileSize;
+        const y0 = path[i][1] * tileSize;
+        const x1 = path[i + 1][0] * tileSize;
+        const y1 = path[i + 1][1] * tileSize;
+        const line = new Phaser.Geom.Line(x0, y0, x1, y1);
+        this.debugGraphics.lineStyle(1, 0xff0000, 1.0);
+        //this.debugGraphics.strokeLineShape(line);
+      }
+
       const nextStep = path[1];
-      // console.log(mage.name);
-      // console.log(
-      //   Math.floor(mage.x / tileSize),
-      //   Math.floor(mage.y / tileSize),
-      //   Math.floor(this.player.x / tileSize),
-      //   Math.floor(this.player.y / tileSize)
-      // );
-      //
-      // console.log(nextStep);
+      //console.log(mageTileX, mageTileY, playerTileX, playerTileY);
       if (!nextStep) {
+        mage.setVelocity(0);
         continue;
       }
-      if (mageTileX < nextStep[0]) {
+      if (mageTileX < nextStep[0] && mage.body.blocked.right == false) {
         mage.flipX = false;
-        mage.setVelocityX(30);
+        mage.setVelocityX(mageRunSpeed);
       }
-      if (mageTileX > nextStep[0]) {
+      if (mageTileX > nextStep[0] && mage.body.blocked.left == false) {
         mage.flipX = true;
-        mage.setVelocityX(-30);
+        mage.setVelocityX(-mageRunSpeed);
       }
-      if (mageTileY < nextStep[1]) {
-        mage.setVelocityY(30);
+      if (mageTileY < nextStep[1] && mage.body.blocked.down == false) {
+        mage.setVelocityY(mageRunSpeed);
       }
-      if (mageTileY > nextStep[1]) {
-        mage.setVelocityY(-30);
+      if (mageTileY > nextStep[1] && mage.body.blocked.up == false) {
+        mage.setVelocityY(-mageRunSpeed);
       }
     }
   }

@@ -84,17 +84,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0);
 
     if (this.keys.get("LEFT").isDown && this.keys.get("UP").isDown) {
-      this.setVelocityX(-50 * this.speedFactor);
-      this.setVelocityY(-50 * this.speedFactor);
+      this.setVelocityX(-40 * this.speedFactor);
+      this.setVelocityY(-40 * this.speedFactor);
     } else if (this.keys.get("RIGHT").isDown && this.keys.get("UP").isDown) {
-      this.setVelocityX(50 * this.speedFactor);
-      this.setVelocityY(-50 * this.speedFactor);
+      this.setVelocityX(40 * this.speedFactor);
+      this.setVelocityY(-40 * this.speedFactor);
     } else if (this.keys.get("LEFT").isDown && this.keys.get("DOWN").isDown) {
-      this.setVelocityX(-50 * this.speedFactor);
-      this.setVelocityY(50 * this.speedFactor);
+      this.setVelocityX(-40 * this.speedFactor);
+      this.setVelocityY(40 * this.speedFactor);
     } else if (this.keys.get("RIGHT").isDown && this.keys.get("DOWN").isDown) {
-      this.setVelocityX(50 * this.speedFactor);
-      this.setVelocityY(50 * this.speedFactor);
+      this.setVelocityX(40 * this.speedFactor);
+      this.setVelocityY(40 * this.speedFactor);
     } else if (this.keys.get("UP").isDown) {
       this.setVelocityY(-80 * this.speedFactor);
     } else if (this.keys.get("DOWN").isDown) {
