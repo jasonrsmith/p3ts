@@ -8,17 +8,20 @@ export class WorldScene extends Phaser.Scene {
   private player: Player;
   private cursors: Phaser.Input.Keyboard.CursorKeys;
   private spawns: Phaser.Physics.Arcade.Group;
+  private grass: Phaser.Tilemaps.StaticTilemapLayer;
   private obstacles: Phaser.Tilemaps.StaticTilemapLayer;
   private debugGraphics: Phaser.GameObjects.Graphics;
+  private readonly tileSize: number;
 
   constructor() {
     super({ key: "WorldScene" });
+    this.tileSize = 16;
   }
 
   public create() {
     const map = this.make.tilemap({ key: "map" });
     const tiles = map.addTilesetImage("spritesheet", "tiles");
-    const grass = map.createStaticLayer("Grass", tiles, 0, 0);
+    this.grass = map.createStaticLayer("Grass", tiles, 0, 0);
     this.obstacles = map.createStaticLayer("Obstacles", tiles, 0, 0);
     this.obstacles.setCollisionByExclusion([-1]);
     this.player = new Player(this, 1, 1);
@@ -35,6 +38,17 @@ export class WorldScene extends Phaser.Scene {
 
     this.createSpawns();
     this.debugGraphics = this.add.graphics();
+
+    for (let y = 0; y < this.grass.tilemap.height; y++) {
+      for (let x = 0; x < this.grass.tilemap.width; x++) {
+        const text = `${x}\n${y}`;
+        this.add.text(x * this.tileSize, y * this.tileSize, text, {
+          fontSize: "5px",
+          fontFamily: '"PressStart2P"',
+          fill: "#000"
+        });
+      }
+    }
   }
 
   public update(time: number, delta: number) {
@@ -101,32 +115,33 @@ export class WorldScene extends Phaser.Scene {
   private updateMagePaths() {
     const mageRunSpeed = 10;
     let matrix = [];
+    // matrix.push([].fill(0, 0, this.obstacles.tilemap.width));
     for (let y = 0; y < this.obstacles.tilemap.height; y++) {
       let col = [];
+      // col.push(0);
       for (let x = 0; x < this.obstacles.tilemap.width; x++) {
         col.push(this.obstacles.getTileAt(x, y) ? 1 : 0);
       }
       matrix.push(col);
     }
 
-    const tileSize = 16;
-
     const mages = <Mage[]>this.spawns.getChildren();
     for (let i = 0; i < mages.length; i++) {
       const mage = mages[i];
       const grid = new PF.Grid(matrix);
       const finder = new PF.AStarFinder({
-        allowDiagonal: true
+        allowDiagonal: false
       });
 
-      // const mageTileX = Math.round(mage.x / tileSize);
-      // const mageTileY = Math.round(mage.y / tileSize);
-      // const playerTileX = Math.round(this.player.x / tileSize);
-      // const playerTileY = Math.round(this.player.y / tileSize);
-      const mageTileX = Math.floor((mage.x + tileSize / 2) / tileSize);
-      const mageTileY = Math.floor((mage.y + tileSize / 2) / tileSize);
-      const playerTileX = Math.floor((this.player.x + tileSize / 2) / tileSize);
-      const playerTileY = Math.floor((this.player.y + tileSize / 2) / tileSize);
+      const mageTileX = Math.floor(mage.x / this.tileSize);
+      const mageTileY = Math.floor(mage.y / this.tileSize);
+      const playerTileX = Math.floor(this.player.x / this.tileSize);
+      const playerTileY = Math.floor(this.player.y / this.tileSize);
+      // const mageTileX = Math.round((mage.x + this.tileSize / 2) / this.tileSize);
+      // const mageTileY = Math.round((mage.y + this.tileSize / 2) / this.tileSize);
+      // const playerTileX = Math.round((this.player.x + this.tileSize / 2) / this.tileSize);
+      // const playerTileY = Math.round((this.player.y + this.tileSize / 2) / this.tileSize);
+      console.log(mageTileX, mageTileY, playerTileX, playerTileY);
 
       let path;
       try {
@@ -144,27 +159,28 @@ export class WorldScene extends Phaser.Scene {
       }
 
       this.debugGraphics.clear();
-      const x0 = mageTileX * tileSize + tileSize / 2;
-      const y0 = mageTileY * tileSize + tileSize / 2;
-      const x1 = playerTileX * tileSize + tileSize / 2;
-      const y1 = playerTileY * tileSize + tileSize / 2;
+      this.drawDebugGrid();
+      const x0 = mageTileX * this.tileSize + this.tileSize / 2;
+      const y0 = mageTileY * this.tileSize + this.tileSize / 2;
+      const x1 = playerTileX * this.tileSize + this.tileSize / 2;
+      const y1 = playerTileY * this.tileSize + this.tileSize / 2;
       const line = new Phaser.Geom.Line(x0, y0, x1, y1);
       this.debugGraphics.lineStyle(1, 0xff00ff, 0.8);
       this.debugGraphics.strokeLineShape(line);
       for (let i = 0; i < path.length - 1; i++) {
-        const x0 = path[i][0] * tileSize;
-        const y0 = path[i][1] * tileSize;
-        const x1 = path[i + 1][0] * tileSize;
-        const y1 = path[i + 1][1] * tileSize;
+        const x0 = path[i][0] * this.tileSize + this.tileSize / 2;
+        const y0 = path[i][1] * this.tileSize + this.tileSize / 2;
+        const x1 = path[i + 1][0] * this.tileSize + this.tileSize / 2;
+        const y1 = path[i + 1][1] * this.tileSize + this.tileSize / 2;
         const line = new Phaser.Geom.Line(x0, y0, x1, y1);
         this.debugGraphics.lineStyle(1, 0xff0000, 1.0);
-        //this.debugGraphics.strokeLineShape(line);
+        this.debugGraphics.strokeLineShape(line);
       }
 
       const nextStep = path[1];
       //console.log(mageTileX, mageTileY, playerTileX, playerTileY);
+      mage.setVelocity(0);
       if (!nextStep) {
-        mage.setVelocity(0);
         continue;
       }
       if (mageTileX < nextStep[0] && mage.body.blocked.right == false) {
@@ -180,6 +196,28 @@ export class WorldScene extends Phaser.Scene {
       }
       if (mageTileY > nextStep[1] && mage.body.blocked.up == false) {
         mage.setVelocityY(-mageRunSpeed);
+      }
+    }
+  }
+
+  private drawDebugGrid() {
+    this.debugGraphics.lineStyle(1, 0xffffff, 0.5);
+    for (let y = 1; y < this.grass.tilemap.height; y++) {
+      const line = new Phaser.Geom.Line(
+        0,
+        y * this.tileSize,
+        this.physics.world.bounds.width,
+        y * this.tileSize
+      );
+      this.debugGraphics.strokeLineShape(line);
+      for (let x = 1; x < this.grass.tilemap.width; x++) {
+        const line = new Phaser.Geom.Line(
+          x * this.tileSize,
+          0,
+          x * this.tileSize,
+          this.physics.world.bounds.width
+        );
+        this.debugGraphics.strokeLineShape(line);
       }
     }
   }
