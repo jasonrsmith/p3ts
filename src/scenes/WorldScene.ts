@@ -126,6 +126,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     const mages = <Mage[]>this.spawns.getChildren();
+    this.debugGraphics.clear();
     for (let i = 0; i < mages.length; i++) {
       const mage = mages[i];
       const grid = new PF.Grid(matrix);
@@ -158,15 +159,19 @@ export class WorldScene extends Phaser.Scene {
         continue;
       }
 
-      this.debugGraphics.clear();
       this.drawDebugGrid();
-      const x0 = mageTileX * this.tileSize + this.tileSize / 2;
-      const y0 = mageTileY * this.tileSize + this.tileSize / 2;
-      const x1 = playerTileX * this.tileSize + this.tileSize / 2;
-      const y1 = playerTileY * this.tileSize + this.tileSize / 2;
+      const x0 = mageTileX * this.tileSize;
+      const y0 = mageTileY * this.tileSize;
+      const x1 = playerTileX * this.tileSize;
+      const y1 = playerTileY * this.tileSize;
       const line = new Phaser.Geom.Line(x0, y0, x1, y1);
+      const squareMage = new Phaser.Geom.Rectangle(x0, y0, this.tileSize/4,this.tileSize/4);
+      const squarePlayer = new Phaser.Geom.Rectangle(x1, y1, this.tileSize/4,this.tileSize/4);
       this.debugGraphics.lineStyle(1, 0xff00ff, 0.8);
       this.debugGraphics.strokeLineShape(line);
+      this.debugGraphics.strokeRectShape(squareMage);
+      this.debugGraphics.lineStyle(1, 0x00ffff, 0.8);
+      this.debugGraphics.strokeRectShape(squarePlayer);
       for (let i = 0; i < path.length - 1; i++) {
         const x0 = path[i][0] * this.tileSize + this.tileSize / 2;
         const y0 = path[i][1] * this.tileSize + this.tileSize / 2;
@@ -183,19 +188,33 @@ export class WorldScene extends Phaser.Scene {
       if (!nextStep) {
         continue;
       }
+      if (!(mage.body.blocked.up || mage.body.blocked.down) && mageTileX * this.tileSize != mage.x) {
+        if (mageTileX * this.tileSize > mage.x) {
+          mage.runRight()
+        }
+        if (mageTileX * this.tileSize < mage.x) {
+          mage.runLeft()
+        }
+      }
+      if (!(mage.body.blocked.left || mage.body.blocked.right) && mageTileY * this.tileSize != mage.y) {
+        if (mageTileY * this.tileSize > mage.y) {
+          mage.runDown()
+        }
+        if (mageTileY * this.tileSize < mage.y) {
+          mage.runUp()
+        }
+      }
       if (mageTileX < nextStep[0] && mage.body.blocked.right == false) {
-        mage.flipX = false;
-        mage.setVelocityX(mageRunSpeed);
+          mage.runRight();
       }
       if (mageTileX > nextStep[0] && mage.body.blocked.left == false) {
-        mage.flipX = true;
-        mage.setVelocityX(-mageRunSpeed);
+        mage.runLeft();
       }
       if (mageTileY < nextStep[1] && mage.body.blocked.down == false) {
-        mage.setVelocityY(mageRunSpeed);
+        mage.runDown();
       }
       if (mageTileY > nextStep[1] && mage.body.blocked.up == false) {
-        mage.setVelocityY(-mageRunSpeed);
+        mage.runUp();
       }
     }
   }

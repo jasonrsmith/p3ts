@@ -1,5 +1,6 @@
 export class Mage extends Phaser.Physics.Arcade.Sprite {
   private speed: number;
+  private readonly runSpeed: number;
 
   public static createAnims(scene: Phaser.Scene) {
     scene.anims.create({
@@ -19,6 +20,8 @@ export class Mage extends Phaser.Physics.Arcade.Sprite {
     this.initPhysics();
     this.currentScene.add.existing(this);
     this.flipX = true;
+    this.setOrigin(0);
+    this.runSpeed = 30;
   }
 
   public initPhysics() {
@@ -30,10 +33,27 @@ export class Mage extends Phaser.Physics.Arcade.Sprite {
   public update(): void {
     this.anims.play("mage_left", true);
     //this.setVelocityX(this.speed);
+    /*
     if (this.body.blocked.right || this.body.blocked.left) {
       this.speed = -this.speed;
       this.setVelocityX(this.speed);
       this.flipX = !this.flipX;
     }
+    */
+  }
+
+  public runLeft(): void {
+    this.flipX = true;
+    this.setVelocityX(-this.runSpeed);
+  }
+  public runRight(): void {
+    this.flipX = false;
+    this.setVelocityX(this.runSpeed);
+  }
+  public runUp(): void {
+    this.setVelocityY(-this.runSpeed);
+  }
+  public runDown(): void {
+    this.setVelocityY(this.runSpeed);
   }
 }
