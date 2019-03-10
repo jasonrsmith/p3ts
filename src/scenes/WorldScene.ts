@@ -1,7 +1,7 @@
 import Sprite = Phaser.Physics.Arcade.Sprite;
+import * as PF from "pathfinding";
 import { Mage } from "../enemies/Mage";
 import { Player } from "../Player";
-import * as PF from "pathfinding";
 import GameObject = Phaser.GameObjects.GameObject;
 
 export class WorldScene extends Phaser.Scene {
@@ -113,19 +113,16 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateMagePaths() {
-    const mageRunSpeed = 10;
-    let matrix = [];
-    // matrix.push([].fill(0, 0, this.obstacles.tilemap.width));
+    const matrix = [];
     for (let y = 0; y < this.obstacles.tilemap.height; y++) {
-      let col = [];
-      // col.push(0);
+      const col = [];
       for (let x = 0; x < this.obstacles.tilemap.width; x++) {
         col.push(this.obstacles.getTileAt(x, y) ? 1 : 0);
       }
       matrix.push(col);
     }
 
-    const mages = <Mage[]>this.spawns.getChildren();
+    const mages = this.spawns.getChildren() as Mage[];
     this.debugGraphics.clear();
     for (let i = 0; i < mages.length; i++) {
       const mage = mages[i];
@@ -165,8 +162,18 @@ export class WorldScene extends Phaser.Scene {
       const x1 = playerTileX * this.tileSize;
       const y1 = playerTileY * this.tileSize;
       const line = new Phaser.Geom.Line(x0, y0, x1, y1);
-      const squareMage = new Phaser.Geom.Rectangle(x0, y0, this.tileSize/4,this.tileSize/4);
-      const squarePlayer = new Phaser.Geom.Rectangle(x1, y1, this.tileSize/4,this.tileSize/4);
+      const squareMage = new Phaser.Geom.Rectangle(
+        x0,
+        y0,
+        this.tileSize / 4,
+        this.tileSize / 4
+      );
+      const squarePlayer = new Phaser.Geom.Rectangle(
+        x1,
+        y1,
+        this.tileSize / 4,
+        this.tileSize / 4
+      );
       this.debugGraphics.lineStyle(1, 0xff00ff, 0.8);
       this.debugGraphics.strokeLineShape(line);
       this.debugGraphics.strokeRectShape(squareMage);
@@ -183,38 +190,45 @@ export class WorldScene extends Phaser.Scene {
       }
 
       const nextStep = path[1];
-      //console.log(mageTileX, mageTileY, playerTileX, playerTileY);
+      // console.log(mageTileX, mageTileY, playerTileX, playerTileY);
       mage.setVelocity(0);
       if (!nextStep) {
         continue;
       }
-      if (!(mage.body.blocked.up || mage.body.blocked.down) && mageTileX * this.tileSize != mage.x) {
+      if (
+        (mage.body.blocked.up || mage.body.blocked.down) &&
+        mageTileX * this.tileSize != mage.x
+      ) {
         if (mageTileX * this.tileSize > mage.x) {
-          mage.runRight()
+          mage.runRight();
         }
         if (mageTileX * this.tileSize < mage.x) {
-          mage.runLeft()
+          mage.runLeft();
         }
-      }
-      if (!(mage.body.blocked.left || mage.body.blocked.right) && mageTileY * this.tileSize != mage.y) {
+      } else if (
+        (mage.body.blocked.left || mage.body.blocked.right) &&
+        mageTileY * this.tileSize != mage.y
+      ) {
         if (mageTileY * this.tileSize > mage.y) {
-          mage.runDown()
+          mage.runDown();
         }
         if (mageTileY * this.tileSize < mage.y) {
-          mage.runUp()
+          mage.runUp();
         }
-      }
-      if (mageTileX < nextStep[0] && mage.body.blocked.right == false) {
+      } else {
+        if (mageTileX < nextStep[0] && mage.body.blocked.right == false) {
           mage.runRight();
-      }
-      if (mageTileX > nextStep[0] && mage.body.blocked.left == false) {
-        mage.runLeft();
-      }
-      if (mageTileY < nextStep[1] && mage.body.blocked.down == false) {
-        mage.runDown();
-      }
-      if (mageTileY > nextStep[1] && mage.body.blocked.up == false) {
-        mage.runUp();
+        }
+        if (mageTileX > nextStep[0] && mage.body.blocked.left == false) {
+          mage.runLeft();
+        }
+        if (mageTileY < nextStep[1] && mage.body.blocked.down == false) {
+          mage.runDown();
+        }
+        if (mageTileY > nextStep[1] && mage.body.blocked.up == false) {
+          console.log("up1");
+          mage.runUp();
+        }
       }
     }
   }

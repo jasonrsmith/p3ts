@@ -3,35 +3,6 @@ import * as PF from "pathfinding";
 import Game = Phaser.Game;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private readonly currentScene: Phaser.Scene;
-  private readonly keys: Map<string, Phaser.Input.Keyboard.Key>;
-  private readonly speedFactor: number;
-
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "player", 6);
-
-    this.currentScene = scene;
-    this.keys = Player.generateKeysForScene(this.currentScene);
-    Player.createAnimsForScene(this.currentScene);
-    this.initPhysics();
-    this.currentScene.add.existing(this);
-
-    this.speedFactor = 1.5;
-  }
-
-  public getKeys(): Map<string, Phaser.Input.Keyboard.Key> {
-    return this.keys;
-  }
-
-  public update(...args): void {
-    this.handleInput();
-  }
-
-  private initPhysics() {
-    this.currentScene.physics.world.enable(this);
-    this.setCollideWorldBounds(true);
-  }
-
   private static generateKeysForScene(
     scene: Phaser.Scene
   ): Map<string, Phaser.Input.Keyboard.Key> {
@@ -78,6 +49,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       frameRate: 10,
       repeat: -1
     });
+  }
+  private readonly currentScene: Phaser.Scene;
+  private readonly keys: Map<string, Phaser.Input.Keyboard.Key>;
+  private readonly speedFactor: number;
+
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    super(scene, x, y, "player", 6);
+
+    this.currentScene = scene;
+    this.keys = Player.generateKeysForScene(this.currentScene);
+    Player.createAnimsForScene(this.currentScene);
+    this.initPhysics();
+    this.currentScene.add.existing(this);
+
+    this.speedFactor = 1.5;
+  }
+
+  public getKeys(): Map<string, Phaser.Input.Keyboard.Key> {
+    return this.keys;
+  }
+
+  public update(...args): void {
+    this.handleInput();
+  }
+
+  private initPhysics() {
+    this.currentScene.physics.world.enable(this);
+    this.setCollideWorldBounds(true);
   }
 
   private handleInput() {
